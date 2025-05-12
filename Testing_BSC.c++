@@ -11,7 +11,15 @@ using boost::multiprecision::cpp_dec_float_100;
 typedef boost::multiprecision::number<boost::multiprecision::backends::cpp_dec_float<100>> high_precision_float;
 
 using namespace std;
-
+int bit_reverse(int x, int deg) {
+    int result = 0;
+    for (int i = 0; i < deg; i++) {
+        if (x & (1 << i)) {
+            result |= 1 << (deg - 1 - i);
+        }
+    }
+    return result;
+}
 // 버블 정렬 함수를 고정밀 타입으로 변경
 void bubbleSort(vector<high_precision_float>& arr, vector<vector<int>>& arr2)
 {
@@ -121,9 +129,11 @@ void print2D(vector<vector<int>>& arr)
     }
 }
 
-void write(vector<int> v) {
+void write(vector<int> v, int deg) {
+    // 파일 이름에 차수를 반영
+    string filename = "reliability_seq_BSC_p=0.2_2^" + to_string(deg) + "_high_precision.txt";
     ofstream file;
-    file.open("reliability_seq_BSC_p=0.2_2^11_high_precision.txt");
+    file.open(filename);
     for (int i = 0; i < v.size(); ++i) {
         file << v[i] << endl; // 각 값을 줄바꿈하여 출력
     }
@@ -146,18 +156,26 @@ int main()
     vector<high_precision_float> A;
     vector<vector<int>> B;
     
-    // 초기값 설정
-    A.push_back(high_precision_float("0.9329"));
-    A.push_back(high_precision_float("0.64"));
-    
-    int size = 1;
-    vector<int> B1;
-    B1.push_back(1);
+    double p_percent;
+    cout << "BSC 채널의 에러율 p 를 입력하세요 (예: 5 for 5%): ";
+    cin >> p_percent;
+    high_precision_float p = high_precision_float(p_percent) / 100;
+
+    // Bhattacharyya 초기값 계산
+    high_precision_float Z0 = 2 * precise_sqrt(p * (1 - p));
+    high_precision_float Z_minus = Z0 * precise_sqrt(high_precision_float("2.0") - precise_pow(Z0, 2));
+    high_precision_float Z_plus = precise_pow(Z0, 2);
+
+
+    A.push_back(Z_minus); // Z^-
+    A.push_back(Z_plus);  // Z^+
+    cout << Z_minus<<endl;
+    cout << Z_plus<<endl;
+
+    vector<int> B1 = {1};
+    vector<int> B2 = {0};
     B.push_back(B1);
-    vector<int> B2;
-    B2.push_back(0);
     B.push_back(B2);
-    
     // 사용자로부터 차수 입력 받기
     int deg;
     cout << "차수를 입력하세요 (예: 11): ";
@@ -262,7 +280,7 @@ int main()
         {
             sum = sum + D[i][j] * pow(2, deg-j-1);
         }
-        reliability.push_back(sum);
+        reliability.push_back(bit_reverse(sum, deg));
     }
 
     for (int i = 0; i < reliability.size(); i++)
@@ -279,8 +297,8 @@ int main()
     }
     cout << "..." << endl << endl;
     
-    // 파일에 저장
-    write(reliability);
+    // 파일에 저장 (deg 값을 전달)
+    write(reliability, deg);
     
     cout << "총 채널 수: " << C.size() << endl;
     cout << "좋은 채널 수 (<=0.2): " << count << endl;
