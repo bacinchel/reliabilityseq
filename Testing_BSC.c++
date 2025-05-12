@@ -4,15 +4,23 @@
 #include <fstream>
 #include <iomanip>
 #include <algorithm>
+#include <boost/multiprecision/cpp_dec_float.hpp>
+
+// 사용자 정의 고정밀 부동 소수점 (200자리 정밀도)
+using boost::multiprecision::cpp_dec_float_100;
+typedef boost::multiprecision::number<boost::multiprecision::backends::cpp_dec_float<100>> high_precision_float;
+
 using namespace std;
-void bubbleSort(vector <long double>& arr, vector <vector <int> >& arr2)
+
+// 버블 정렬 함수를 고정밀 타입으로 변경
+void bubbleSort(vector<high_precision_float>& arr, vector<vector<int>>& arr2)
 {
-   int i, j, pass =0;
-   float temp;
-   vector <int> temp2;
-   for(i = 0; i<arr.size(); i++) 
+   int i, j, pass = 0;
+   high_precision_float temp;
+   vector<int> temp2;
+   for(i = 0; i < arr.size(); i++) 
    {
-        for(j = i+1; j< arr.size(); j++)
+        for(j = i+1; j < arr.size(); j++)
         {
             if(arr[j] <= arr[i]) 
             {
@@ -28,31 +36,25 @@ void bubbleSort(vector <long double>& arr, vector <vector <int> >& arr2)
     }    
 }
 
-// Merge two subarrays L and M into arr
-void merge(vector <long double>& arr, vector <vector <int> >& arr2, int p, int q, int r) {
-  
-  // Create L ← A[p..q] and M ← A[q+1..r]
+// 병합 정렬 함수 수정
+void merge(vector<high_precision_float>& arr, vector<vector<int>>& arr2, int p, int q, int r) {
   int n1 = q - p + 1;
   int n2 = r - q;
 
-  double L[n1], M[n2];
-  vector<vector<int> > L1( n1 , vector<int> (arr2[0].size(), 0)); 
-  vector<vector<int> > M1( n2 , vector<int> (arr2[0].size(), 0)); 
-  for (int i = 0; i < n1; i++)
-    {L[i] = arr[p + i];
-    L1[i]= arr2[p+i];}
-  for (int j = 0; j < n2; j++)
-    {M[j] = arr[q + 1 + j];
-    M1[j] = arr2[q+1+j];}
+  vector<high_precision_float> L(n1), M(n2);
+  vector<vector<int>> L1(n1), M1(n2);
+  
+  for (int i = 0; i < n1; i++) {
+    L[i] = arr[p + i];
+    L1[i] = arr2[p + i];
+  }
+  for (int j = 0; j < n2; j++) {
+    M[j] = arr[q + 1 + j];
+    M1[j] = arr2[q + 1 + j];
+  }
 
-  // Maintain current index of sub-arrays and main array
-  int i, j, k;
-  i = 0;
-  j = 0;
-  k = p;
+  int i = 0, j = 0, k = p;
 
-  // Until we reach either end of either L or M, pick larger among
-  // elements L and M and place them in the correct position at A[p..r]
   while (i < n1 && j < n2) {
     if (L[i] <= M[j]) {
       arr[k] = L[i];
@@ -66,8 +68,6 @@ void merge(vector <long double>& arr, vector <vector <int> >& arr2, int p, int q
     k++;
   }
 
-  // When we run out of elements in either L or M,
-  // pick up the remaining elements and put in A[p..r]
   while (i < n1) {
     arr[k] = L[i];
     arr2[k] = L1[i];
@@ -83,71 +83,73 @@ void merge(vector <long double>& arr, vector <vector <int> >& arr2, int p, int q
   }
 }
 
-// Divide the array into two subarrays, sort them and merge them
-void mergeSort(vector <long double>& arr, vector <vector <int> >& arr2, int l, int r) {
+void mergeSort(vector<high_precision_float>& arr, vector<vector<int>>& arr2, int l, int r) {
   if (l < r) {
-    // m is the point where the array is divided into two subarrays
     int m = l + (r - l) / 2;
-
     mergeSort(arr, arr2, l, m);
     mergeSort(arr, arr2, m + 1, r);
-
-    // Merge the sorted subarrays
     merge(arr, arr2, l, m, r);
   }
 }
 
-//Print for float vectors
-void print1Df(vector <long double>& arr)
+// 출력 함수 수정
+void print1Df(vector<high_precision_float>& arr)
 {
-    for (int i=0; i<arr.size(); i++)
+    for (int i = 0; i < arr.size(); i++)
     {
-        cout << setprecision(20) << arr[i] << " ";
-        cout << endl;
+        cout << std::setprecision(100) << arr[i] << endl;
     }
 }
 
-//Print for integer vectors
-void print1Di(vector <int>& arr)
+void print1Di(vector<int>& arr)
 {
-    for (int i=0; i<arr.size(); i++)
+    for (int i = 0; i < arr.size(); i++)
     {
-        cout << arr[i] << " ";
-        cout << endl;
+        cout << arr[i] << endl;
     }
 }
 
-//Print for 2-D integer vectors
-void print2D(vector<vector <int> >& arr)
+void print2D(vector<vector<int>>& arr)
 {
     for (int i = 0; i < arr.size(); i++)
     {
         for (int j = 0; j < arr[i].size(); j++)
         {
-            cout  << arr[i][j] << " ";
-            //cout<< endl;
+            cout << arr[i][j] << " ";
         }
         cout << endl;
     }
 }
 
-//Write an integer vector to a file
-void write(vector<int> v){
-	ofstream file;
-	file.open("reliability_seq_BSC_p=0.2_2^11.txt");
-	for(int i=0;i<v.size();++i){
-		file<<v[i]<<",";
-	}
-	file.close();
+void write(vector<int> v) {
+    ofstream file;
+    file.open("reliability_seq_BSC_p=0.2_2^11_high_precision.txt");
+    for (int i = 0; i < v.size(); ++i) {
+        file << v[i] << endl; // 각 값을 줄바꿈하여 출력
+    }
+    file.close();
+}
+
+// 고정밀 제곱근 함수
+high_precision_float precise_sqrt(const high_precision_float& x) {
+    return sqrt(x);
+}
+
+// 고정밀 제곱 함수
+high_precision_float precise_pow(const high_precision_float& x, int power) {
+    return pow(x, power);
 }
 
 int main()
 {
-    //Initialization
-    vector <long double> A;
-    vector<vector <int> > B;
-    A.push_back(0.9329);
-    A.push_back(0.64);
+    // 고정밀 타입으로 초기화
+    vector<high_precision_float> A;
+    vector<vector<int>> B;
+    
+    // 초기값 설정
+    A.push_back(high_precision_float("0.9329"));
+    A.push_back(high_precision_float("0.64"));
+    
     int size = 1;
     vector<int> B1;
     B1.push_back(1);
@@ -155,105 +157,58 @@ int main()
     vector<int> B2;
     B2.push_back(0);
     B.push_back(B2);
-    /*for (int i = 0; i < B.size(); i++)
-    {
-        for (int j = 0; j < B[i].size(); j++)
-        {
-            cout << B[i][j] << " ";
-            cout<< endl;
-        }
-    }*/
     
-    /*for (int i=0; i<A.size(); i++)
-    {
-        cout << A[i] << " ";
-        cout << endl;
-    }*/
-    
-    //Initialize degree and find total number of polarized channels needed
-    int deg = 11;
+    // 사용자로부터 차수 입력 받기
+    int deg;
+    cout << "차수를 입력하세요 (예: 11): ";
+    cin >> deg;
+
+    // 총 채널 수 계산
     int total = 0;
-    for(int i=2; i<=deg; i++)
+    for(int i = 2; i <= deg; i++)
     {
-        total = total + pow(2,i);
+        total = total + pow(2, i);
     }
 
-    //Concatenated loops for getting vector and vectors of vector for Bhhatacharyya parameters and channel markings
-    int k =2;
-    for (int i =0; i<total/2; i++)
+    // 채널 극성화 과정
+    int k = 2;
+    for (int i = 0; i < total/2; i++)
     {
-        for (int j =0; j<2; j++)
+        for (int j = 0; j < 2; j++)
         {
             if (j == 0)
             {
-                vector <int> v1;
+                vector<int> v1;
                 v1 = B[k-2];
                 v1.push_back(1);
-                /*cout << "v1 =";
-                for (int z=0; z< v1.size(); z++)
-                {
-                    cout  << v1[z] << " ";
-                    //cout<< endl;
-                }
-                cout << endl;*/
                 B.push_back(v1);
-                setprecision(20);
-                A.push_back(A[k-2]* sqrt(2-pow(A[k-2],2)));
-                /*for (int l = 0; l < B.size(); l++)
-                {
-                    for (int m = 0; m < B[l].size(); m++)
-                    {
-                        cout << B[l][m] << " ";
-                        //cout<< endl;
-                    }
-                    cout<< endl;
-                }*/
+                
+                // 고정밀 계산: A[k-2] * sqrt(2-A[k-2]^2)
+                high_precision_float temp = A[k-2];
+                high_precision_float temp_squared = precise_pow(temp, 2);
+                high_precision_float inner = high_precision_float("2.0") - temp_squared;
+                high_precision_float sqrt_inner = precise_sqrt(inner);
+                A.push_back(temp * sqrt_inner);
             }
-            /*cout << "k =" << k;
-            cout << endl;*/
-            
-            else if (j ==1)
+            else if (j == 1)
             {
-                vector <int> v1;
-                v1 =  B[k-2];
-                //cout << "k =" << k;
+                vector<int> v1;
+                v1 = B[k-2];
                 v1.push_back(0);
-                setprecision(20);
-                A.push_back(pow(A[k-2],2));
-                /*cout << "v1 =";
-                for (int z=0; z< v1.size(); z++)
-                {
-                    cout  << v1[z] << " ";
-                    //cout<< endl;
-                }
-                cout << endl;*/
+                
+                // 고정밀 계산: A[k-2]^2
+                high_precision_float temp = A[k-2];
+                A.push_back(precise_pow(temp, 2));
                 B.push_back(v1);
             } 
-            
         }
-        k++ ;
-        
+        k++;
     }
-    /*for (int i = 0; i < B.size(); i++)
-    {
-        for (int j = 0; j < B[i].size(); j++)
-        {
-            cout  << B[i][j] << " ";
-            //cout<< endl;
-        }
-        cout << endl;
-    }
-    for (int i=0; i<A.size(); i++)
-    {
-        cout << "A =";
-        cout << A[i] << " ";
-        cout << endl;
-    }*/
     
-    //Take out relevant subset of A & B (based on degree) and store it in C & D
-    vector <long double> C;
-    vector<vector <int> > D;
-    for (int i =0; i< B.size();i++)
+    // 차수에 맞는 채널 선택
+    vector<high_precision_float> C;
+    vector<vector<int>> D;
+    for (int i = 0; i < B.size(); i++)
     {
         if (B[i].size() == deg)
         {
@@ -263,77 +218,73 @@ int main()
             C.push_back(A[i]);
         }
     }
-    /*for (int i = 0; i < D.size(); i++)
-    {
-        for (int j = 0; j < D[i].size(); j++)
-        {
-            cout  << D[i][j] << " ";
-            //cout<< endl;
-        }
-        cout << endl;
-    }*/
-    for (int i=0; i<C.size(); i++)
-    {
-        cout<< "C =";
-        cout << C[i] << " ";
-        cout << endl;
-    }
     
-    //sorting C and D in increasing order
-    //bubbleSort(C,D) ;
-    mergeSort(C,D,0,C.size()-1);
-
-
-    /*for (int i=0; i<C.size(); i++)
+    // 디버깅용 출력
+    cout << "채널 파라미터 값 (정렬 전):" << endl;
+    for (int i = 0; i < C.size(); i++)
     {
-        cout << C[i] << " ";
-        cout << endl;
-    }*/
-    print1Df(C);
-    print2D(D);
-    //Test for number of good channels after polarization
-    int count =0;
-    int count1 =0;
-    for (int i=0; i<C.size(); i++)
+        cout << "C[" << i << "] = " << std::setprecision(100) << C[i] << endl;
+        if (i >= 9) break; // 처음 10개만 출력
+    }
+    cout << "..." << endl << endl;
+    
+    // 병합 정렬 사용 (더 효율적)
+    mergeSort(C, D, 0, C.size()-1);
+
+    cout << "채널 파라미터 값 (정렬 후):" << endl;
+    for (int i = 0; i < 10; i++) // 처음 10개만 출력
     {
-        if (C[i]<=0.2)
+        cout << "C[" << i << "] = " << std::setprecision(100) << C[i] << endl;
+    }
+    cout << "..." << endl << endl;
+    
+    // 좋은 채널 카운트
+    int count = 0;
+    int count1 = 0;
+    high_precision_float threshold("0.2");
+    for (int i = 0; i < C.size(); i++)
+    {
+        if (C[i] <= threshold)
         {
             count++;
         }
-        else{
+        else {
             count1++;
         }
     }
-    /*for (int i = 0; i < D.size(); i++)
-    {
-        for (int j = 0; j < D[i].size(); j++)
-        {
-            cout  << D[i][j] << " ";
-            //cout<< endl;
-        }
-        cout << endl;
-    }*/
 
-    //Calculating reliability sequence
-    vector <int> reliability;
+    // 신뢰성 시퀀스 계산
+    vector<int> reliability;
     for (int i = 0; i < D.size(); i++)
     {
-        int sum =0;
-        for (int j=deg-1; j>=0; j--)
+        int sum = 0;
+        for (int j = deg-1; j >= 0; j--)
         {
-            sum =sum + D[i][j] * pow(2,deg-j-1);
+            sum = sum + D[i][j] * pow(2, deg-j-1);
         }
         reliability.push_back(sum);
     }
 
-    for (int i=0; i<reliability.size();i++)
+    for (int i = 0; i < reliability.size(); i++)
     {
-        reliability[i] = pow(2,deg)-1-reliability[i];
+        reliability[i] = pow(2, deg) - 1 - reliability[i];
     }
 
-    reverse(reliability.begin(),reliability.end());
-    print1Di(reliability);
+    reverse(reliability.begin(), reliability.end());
+    
+    cout << "신뢰성 시퀀스 (처음 10개):" << endl;
+    for (int i = 0; i < 10; i++)
+    {
+        cout << "reliability[" << i << "] = " << reliability[i] << endl;
+    }
+    cout << "..." << endl << endl;
+    
+    // 파일에 저장
     write(reliability);
-    cout<<"Number of good channels ="<<count<<endl;
-    cout<<"Number of not good channels ="<<count1<<endl;
+    
+    cout << "총 채널 수: " << C.size() << endl;
+    cout << "좋은 채널 수 (<=0.2): " << count << endl;
+    cout << "나쁜 채널 수 (>0.2): " << count1 << endl;
+    
+    return 0;
 }
