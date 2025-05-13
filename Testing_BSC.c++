@@ -288,7 +288,7 @@ int main()
         reliability[i] = pow(2, deg) - 1 - reliability[i];
     }
 
-    reverse(reliability.begin(), reliability.end());
+    //reverse(reliability.begin(), reliability.end());
     
     cout << "신뢰성 시퀀스 (처음 10개):" << endl;
     for (int i = 0; i < 10; i++)
