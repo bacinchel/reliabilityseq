@@ -100,6 +100,38 @@ void mergeSort(vector<high_precision_float>& arr, vector<vector<int>>& arr2, int
   }
 }
 
+
+// 안정 정렬용 구조체
+struct BhattacharyyaWithIndex {
+    high_precision_float value;
+    int original_index;
+    vector<int> bit_pattern;
+};
+
+// 비교 함수: 값 오름차순 + 인덱스 오름차순 (tie-break)
+bool stable_compare(const BhattacharyyaWithIndex& a, const BhattacharyyaWithIndex& b) {
+    if (a.value != b.value)
+        return a.value < b.value;
+    return a.original_index < b.original_index;
+}
+
+// 안정 정렬 함수
+void stableSortBhattacharyya(vector<high_precision_float>& C, vector<vector<int>>& D) {
+    vector<BhattacharyyaWithIndex> combined;
+    for (int i = 0; i < C.size(); i++) {
+        combined.push_back({C[i], i, D[i]});
+    }
+
+    // 안정 정렬 적용
+    std::stable_sort(combined.begin(), combined.end(), stable_compare);
+
+    // 정렬된 값 복사
+    for (int i = 0; i < combined.size(); i++) {
+        C[i] = combined[i].value;
+        D[i] = combined[i].bit_pattern;
+    }
+}
+
 // 출력 함수 수정
 void print1Df(vector<high_precision_float>& arr)
 {
@@ -247,7 +279,7 @@ int main()
     cout << "..." << endl << endl;
     
     // 병합 정렬 사용 (더 효율적)
-    mergeSort(C, D, 0, C.size()-1);
+    stableSortBhattacharyya(C, D);
 
     cout << "채널 파라미터 값 (정렬 후):" << endl;
     for (int i = 0; i < 10; i++) // 처음 10개만 출력
@@ -288,7 +320,7 @@ int main()
         reliability[i] = pow(2, deg) - 1 - reliability[i];
     }
 
-    //reverse(reliability.begin(), reliability.end());
+    reverse(reliability.begin(), reliability.end());
     
     cout << "신뢰성 시퀀스 (처음 10개):" << endl;
     for (int i = 0; i < 10; i++)
