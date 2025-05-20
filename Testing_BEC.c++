@@ -9,7 +9,7 @@ using namespace std;
 void bubbleSort(vector <long double>& arr, vector <vector <int> >& arr2)
 {
    int i, j, pass =0;
-   float temp;
+   long double temp;
    vector <int> temp2;
    for(i = 0; i<arr.size(); i++) 
    {
@@ -36,9 +36,9 @@ void merge(vector <long double>& arr, vector <vector <int> >& arr2, int p, int q
   int n1 = q - p + 1;
   int n2 = r - q;
 
-  double L[n1], M[n2];
-  vector<vector<int> > L1( n1 , vector<int> (arr2[0].size(), 0)); 
-  vector<vector<int> > M1( n2 , vector<int> (arr2[0].size(), 0)); 
+  vector<long double> L(n1), M(n2);
+  vector<vector<int> > L1( n1 , vector<int> (arr2[0].size(), 0));
+  vector<vector<int> > M1( n2 , vector<int> (arr2[0].size(), 0));
   for (int i = 0; i < n1; i++)
     {L[i] = arr[p + i];
     L1[i]= arr2[p+i];}
@@ -359,7 +359,7 @@ int main()
     reverse(reliability.begin(),reliability.end());
     vector<int> rainfall;
     
-    ifstream inputFile("/Users/snehasisaddy/Documents/Security in Post processing QKD/C++ Implementation_polarcodes/Q_BEC copy.txt");
+    ifstream inputFile("Q_BEC copy.txt");
     // test file open   
     if (inputFile) {        
     int value;
@@ -375,18 +375,19 @@ int main()
     //print1Di(reliability);
     //write(reliability);
     int mid_index= pow(2,deg)/2;
-    
-    for (int i=mid_index;i<=reliability.size();i++)
+
+    // Compare only within valid indices
+    for (int i=mid_index; i < reliability.size(); i++)
     {
-        for (int j=mid_index;j<=reliability0.size();j++)
+        for (int j=mid_index; j < reliability0.size(); j++)
         {
-            if (reliability[i]==reliability0[j])
+            if (reliability[i] == reliability0[j])
             {
-                match =match+1;
+                match = match + 1;
             }
         }
     }
-    percent.push_back((match/(mid_index))*100);
+    percent.push_back(static_cast<float>(match) / mid_index * 100.0f);
     
     }
     write_float(percent);
