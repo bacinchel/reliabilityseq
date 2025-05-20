@@ -4,7 +4,7 @@ Reliability sequence for Polar Codes
 This repository contains a C++ implementation for calculating the reliability sequence for Polar Codes.
 
 ## Usage
-Use the code that inputs the block length and values of the first-order Bhattacharyya parameter i.e. Z(W^1) and Z(W^2) and outputs reliability sequence for Polar Encoding.  `Testing_BSC.c++` file contains code for Binary Symmetric Channels and `Testing_BEC.c++` file contains code for Binary Erasure Channels. For detailed description of the code refer to the thesis mentioned under Citation. 
+Use the code that inputs the block length and values of the first-order Bhattacharyya parameter i.e. Z(W^1) and Z(W^2) and outputs reliability sequence for Polar Encoding. `Testing_BSC.c++` file contains code for Binary Symmetric Channels and `Testing_BEC.c++` file contains code for Binary Erasure Channels. For detailed description of the code refer to the thesis mentioned under Citation. 
 
 ## Citation
 ```bibtex
